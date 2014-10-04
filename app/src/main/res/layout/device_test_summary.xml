@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/summaryTextLabel"
+        android:text="Summary"
+        android:layout_marginLeft="8dp"
+        android:textStyle="bold"
+        android:textColor="@color/dark_grey"
+        android:textSize="16dp"
+        android:gravity="center"/>
+
+    <TextView
+        android:layout_width="@dimen/summary_width"
+        android:layout_height="wrap_content"
+        android:id="@+id/yieldTextLabel"
+        android:text="Yield"
+        android:textSize="12dp"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="8dp"
+        android:gravity="center"/>
+
+    <TextView
+        android:layout_width="@dimen/summary_width"
+        android:layout_height="wrap_content"
+        android:id="@+id/totalFailedTextLabel"
+        android:text="Total\nFailed"
+        android:textSize="12dp"
+        android:layout_toLeftOf="@+id/yieldTextLabel"
+        android:layout_marginRight="@dimen/summary_spacing"
+        android:gravity="center"/>
+
+    <TextView
+        android:layout_width="@dimen/summary_width"
+        android:layout_height="wrap_content"
+        android:id="@+id/totalPassedTextLabel"
+        android:text="Total\nPassed"
+        android:textSize="12dp"
+        android:layout_toLeftOf="@+id/totalFailedTextLabel"
+        android:layout_marginRight="@dimen/summary_spacing"
+        android:gravity="center"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/passDescriptionTextLabel"
+        android:text="Pass"
+        android:textSize="12dp"
+        android:layout_below="@+id/summaryTextLabel"
+        android:layout_marginTop="@dimen/summary_bottom_margin"
+        android:layout_marginLeft="8dp"
+        android:gravity="center"/>
+
+    <ImageView
+        android:layout_width="@dimen/passfailwidth"
+        android:layout_height="@dimen/passfailheight"
+        android:src="@drawable/greenpass"
+        android:layout_below="@+id/summaryTextLabel"
+        android:layout_marginTop="@dimen/summary_bottom_margin"
+        android:layout_marginLeft="4dp"
+        android:layout_toRightOf="@+id/passDescriptionTextLabel"
+        android:gravity="center"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/failDescriptionTextLabel"
+        android:text="Fail"
+        android:textSize="12dp"
+        android:layout_below="@+id/summaryTextLabel"
+        android:layout_marginTop="@dimen/summary_bottom_margin"
+        android:layout_toRightOf="@+id/passDescriptionTextLabel"
+        android:layout_marginLeft="56dp"
+        android:gravity="center"/>
+
+    <ImageView
+        android:layout_width="@dimen/passfailwidth"
+        android:layout_height="@dimen/passfailheight"
+        android:src="@drawable/redfail"
+        android:layout_below="@+id/summaryTextLabel"
+        android:layout_marginTop="@dimen/summary_bottom_margin"
+        android:layout_marginLeft="4dp"
+        android:layout_toRightOf="@+id/failDescriptionTextLabel"
+        android:gravity="center"/>
+
+    <TextView
+        android:layout_width="@dimen/summary_width"
+        android:layout_height="wrap_content"
+        android:id="@+id/yieldCount"
+        android:text="--"
+        android:layout_below="@+id/summaryTextLabel"
+        android:layout_marginTop="@dimen/summary_bottom_margin"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="8dp"
+        android:gravity="center"/>
+
+    <TextView
+        android:layout_width="@dimen/summary_width"
+        android:layout_height="wrap_content"
+        android:id="@+id/totalFailedCount"
+        android:text="0"
+        android:layout_below="@+id/summaryTextLabel"
+        android:layout_marginTop="@dimen/summary_bottom_margin"
+        android:layout_toLeftOf="@id/yieldCount"
+        android:layout_marginRight="@dimen/summary_spacing"
+        android:gravity="center"/>
+
+    <TextView
+        android:layout_width="@dimen/summary_width"
+        android:layout_height="wrap_content"
+        android:id="@+id/totalPassedCount"
+        android:text="0"
+        android:layout_below="@+id/summaryTextLabel"
+        android:layout_marginTop="@dimen/summary_bottom_margin"
+        android:layout_toLeftOf="@id/totalFailedCount"
+        android:layout_marginRight="@dimen/summary_spacing"
+        android:gravity="center"/>
+
+</RelativeLayout>

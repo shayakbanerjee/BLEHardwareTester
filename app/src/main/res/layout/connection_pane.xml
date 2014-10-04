@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+
+    <Button
+        android:layout_width="108dp"
+        android:layout_height="32dp"
+        android:id="@+id/searchButton"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="8dp"
+        android:text="Search"
+        android:textSize="16dp"
+        android:textColor="@color/white"
+        android:fontFamily="roboto-medium"
+        android:background="@drawable/custom_search_button"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/testLogTitle"
+        android:text="Testing Log"
+        android:textStyle="bold"
+        android:textColor="@color/blue"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_below="@+id/searchButton"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/deviceConnectedLabel"
+        android:text="Device Disconnected"
+        android:textStyle="bold"
+        android:textColor="@color/red"
+        android:textSize="16dp"
+        android:layout_marginLeft="64dp"
+        android:layout_marginTop="8dp"
+        android:layout_toRightOf="@+id/searchButton"/>
+
+
+</RelativeLayout>

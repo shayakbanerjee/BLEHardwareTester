@@ -1,0 +1,111 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:background="@color/pale_yellow"
+    tools:context=".DeviceTestActivity">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/titleContainer">
+
+        <include layout="@layout/titlebar"></include>
+
+    </RelativeLayout>
+
+    <View
+    android:layout_width="fill_parent"
+    android:layout_height="2dp"
+    android:background="@color/light_grey"
+    android:layout_below="@id/titleContainer"/>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
+        android:id="@+id/deviceTestingContainer"
+        android:layout_below="@+id/titleContainer">
+
+        <include layout="@layout/connection_pane"/>
+
+    </RelativeLayout>
+
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="2dp"
+        android:background="@color/light_grey"
+        android:layout_below="@id/deviceTestingContainer"/>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
+        android:id="@+id/deviceInfoContainer"
+        android:layout_below="@+id/deviceTestingContainer">
+
+        <include layout="@layout/device_info"></include>
+
+    </RelativeLayout>
+
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="2dp"
+        android:background="@color/light_grey"
+        android:layout_below="@id/deviceInfoContainer"/>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
+        android:id="@+id/passFailLabelContainer"
+        android:layout_below="@+id/deviceInfoContainer">
+
+        <include layout="@layout/pass_fail_header"/>
+
+    </RelativeLayout>
+
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="2dp"
+        android:background="@color/light_grey"
+        android:layout_below="@id/passFailLabelContainer"/>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
+        android:id="@+id/deviceTestListContainer"
+        android:layout_below="@+id/passFailLabelContainer">
+
+        <include layout="@layout/device_test_list"/>
+
+    </RelativeLayout>
+
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="2dp"
+        android:background="@color/light_grey"
+        android:layout_below="@id/deviceTestListContainer"/>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
+        android:id="@+id/summaryContainer"
+        android:layout_below="@+id/deviceTestListContainer">
+
+        <include layout="@layout/device_test_summary"/>
+
+    </RelativeLayout>
+
+</RelativeLayout>

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+
+    <TextView
+        android:layout_width="@dimen/summary_width"
+        android:layout_height="wrap_content"
+        android:id="@+id/numberFailedTextLabel"
+        android:text="#Failed"
+        android:textSize="@dimen/pass_fail_header_font"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="8dp"
+        android:textColor="@color/light_grey"
+        android:gravity="center"/>
+
+    <TextView
+        android:layout_width="@dimen/passfailwidth"
+        android:layout_height="wrap_content"
+        android:id="@+id/failTextLabel"
+        android:layout_toLeftOf="@+id/numberFailedTextLabel"
+        android:layout_marginRight="@dimen/summary_spacing"
+        android:textSize="@dimen/pass_fail_header_font"
+        android:text="Fail"
+        android:textColor="@color/light_grey"
+        android:gravity="center"/>
+
+    <TextView
+        android:layout_width="32dp"
+        android:layout_height="wrap_content"
+        android:id="@+id/passTextLabel"
+        android:layout_toLeftOf="@+id/failTextLabel"
+        android:layout_marginRight="@dimen/summary_spacing"
+        android:text="Pass"
+        android:textSize="@dimen/pass_fail_header_font"
+        android:textColor="@color/light_grey"
+        android:gravity="center"/>
+
+</RelativeLayout>

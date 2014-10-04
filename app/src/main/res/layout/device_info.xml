@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:id="@+id/rssiInfo">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/rssiDescriptor"
+            android:text="RSSI: "
+            android:textSize="14dp"
+            android:layout_alignParentTop="true"
+            android:textColor="@color/dark_grey"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/rssiLabel"
+            android:text="-75"
+            android:textSize="14dp"
+            android:layout_toRightOf="@+id/rssiDescriptor"
+            android:paddingLeft="2dp"
+            android:textColor="@color/dark_grey"/>
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:id="@+id/deviceIDInfo"
+        android:layout_toRightOf="@+id/rssiInfo"
+        android:layout_marginLeft="64dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/deviceIDDescriptor"
+            android:text="Device ID: "
+            android:textSize="14dp"
+            android:layout_alignParentTop="true"
+            android:textColor="@color/dark_grey"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/deviceIDLabel"
+            android:text="00:00:00:00:00:00"
+            android:textSize="14dp"
+            android:layout_toRightOf="@+id/deviceIDDescriptor"
+            android:paddingLeft="2dp"
+            android:textColor="@color/dark_grey"/>
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:id="@+id/testsRunInfo"
+        android:layout_below="@+id/rssiInfo">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/testsRunDescriptor"
+            android:text="Tests Run: "
+            android:textSize="14dp"
+            android:layout_alignParentTop="true"
+            android:textColor="@color/dark_grey"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/testsRunLabel"
+            android:text="0"
+            android:textSize="14dp"
+            android:layout_toRightOf="@+id/testsRunDescriptor"
+            android:paddingLeft="2dp"
+            android:textColor="@color/dark_grey"/>
+
+    </RelativeLayout>
+
+</RelativeLayout>

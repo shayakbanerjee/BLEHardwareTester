@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="4dp"
+    android:layout_marginBottom="4dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/deviceTestName"
+        android:text="Test Name"
+        android:layout_marginLeft="8dp"
+        android:layout_centerVertical="true"/>
+
+    <TextView
+        android:layout_width="@dimen/summary_width"
+        android:layout_height="wrap_content"
+        android:id="@+id/passFailCount"
+        android:layout_marginRight="8dp"
+        android:text="0"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:gravity="center"/>
+
+    <ImageView
+        android:layout_width="@dimen/passfailwidth"
+        android:layout_height="@dimen/passfailheight"
+        android:id="@+id/failIndicator"
+        android:src="@drawable/unknownfail"
+        android:layout_toLeftOf="@+id/passFailCount"
+        android:layout_marginRight="@dimen/summary_spacing"
+        android:gravity="center"/>
+
+    <ImageView
+        android:layout_width="@dimen/passfailwidth"
+        android:layout_height="@dimen/passfailheight"
+        android:id="@+id/passIndicator"
+        android:src="@drawable/unknownpass"
+        android:layout_toLeftOf="@+id/failIndicator"
+        android:layout_marginRight="@dimen/summary_spacing"
+        android:gravity="center"/>
+
+</RelativeLayout>

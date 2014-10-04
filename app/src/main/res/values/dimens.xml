@@ -1,0 +1,11 @@
+<resources>
+    <!-- Default screen margins, per the Android Design guidelines. -->
+    <dimen name="activity_horizontal_margin">16dp</dimen>
+    <dimen name="activity_vertical_margin">0dp</dimen>
+    <dimen name="summary_width">40dp</dimen>
+    <dimen name="summary_spacing">24dp</dimen>
+    <dimen name="passfailwidth">24dp</dimen>
+    <dimen name="passfailheight">24dp</dimen>
+    <dimen name="summary_bottom_margin">16dp</dimen>
+    <dimen name="pass_fail_header_font">12dp</dimen>
+</resources>
