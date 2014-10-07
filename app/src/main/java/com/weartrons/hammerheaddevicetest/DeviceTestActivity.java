@@ -110,7 +110,10 @@ public class DeviceTestActivity extends Activity {
         Button searchButton = (Button)findViewById(R.id.searchButton);
         searchButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) { findDevices(); }
+            public void onClick(View v) {
+                clearTestList();
+                findDevices();
+            }
         });
         LocalBroadcastManager.getInstance(this).registerReceiver(broadcastReceiver,
                 new IntentFilter(BroadcastKeys.masterMessage));
@@ -158,8 +161,22 @@ public class DeviceTestActivity extends Activity {
         buzzBle.setWriteValue(new byte[] {(byte) 1});
         buzzTest.setBleTest(buzzBle);
 
+        SingleTest longBuzzTest = new SingleTest("Long Beep", "Did device long beep?", true);
+        BLETest longBuzzBle = new BLETest(UUID.fromString("00001803-0000-1000-8000-00805f9b34fb"),
+                UUID.fromString("00002a06-0000-1000-8000-00805f9b34fb"),
+                BLETest.TestType.WRITE_ONLY) {
+            @Override
+            protected boolean didTestPass(String chValue) {
+                return true;
+            }
+        };
+        longBuzzBle.setWriteValue(new byte[] {(byte) 2});
+        longBuzzTest.setBleTest(longBuzzBle);
+
         deviceTestList.add(batteryTest);
         deviceTestList.add(buzzTest);
+        deviceTestList.add(longBuzzTest);
+
         /*deviceTestList.add(new SingleTest("Accelerometer", "Is accelerometer working?", false));
         deviceTestList.add(new SingleTest("Pressure", "Is pressure sensor working?", false));
         deviceTestList.add(new SingleTest("Fuel Gauge", "Is fuel gauge working?", false));
@@ -184,10 +201,13 @@ public class DeviceTestActivity extends Activity {
         if(deviceUnderTest != null) {
             DeviceTestHistory.addTestedDevice(deviceUnderTest.getAddress());
             connectedGatt.disconnect();
-            deviceTestList.clear();
-            createTestList();
-            redraw();
         }
+    }
+
+    private void clearTestList() {
+        deviceTestList.clear();
+        createTestList();
+        redraw();
     }
 
     public void redraw() {
