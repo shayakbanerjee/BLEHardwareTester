@@ -1,12 +1,9 @@
 package com.weartrons.hammerheaddevicetest;
 
 import android.app.AlertDialog;
-import android.app.Dialog;
+import android.bluetooth.BluetoothGatt;
 import android.content.DialogInterface;
 import android.content.Context;
-import android.util.Log;
-import android.support.v4.content.LocalBroadcastManager;
-import android.content.Intent;
 
 import java.util.Random;
 
@@ -19,27 +16,20 @@ public class SingleTest {
     private boolean isInteractive = false;
     private boolean testHasRun = false;
     private boolean testPassed;
+    private BLETest bleTest = null;
+
     private DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
         @Override
         public void onClick(DialogInterface dialog, int which) {
-            switch (which){
-                case DialogInterface.BUTTON_POSITIVE:
-                    testPassed = true;
-                    break;
-                case DialogInterface.BUTTON_NEGATIVE:
-                    testPassed = false;
-                    break;
+            if (which == DialogInterface.BUTTON_POSITIVE) {
+                testPassed = true;
+                testHasFinished();
+            } else if (which == DialogInterface.BUTTON_NEGATIVE) {
+                testPassed = false;
+                testHasFinished();
             }
-            testHasFinished(((Dialog)dialog).getContext());
         }
     };
-
-    public SingleTest() {
-        testDescription = "";
-        testName = "";
-        isInteractive = false;
-        testHasRun = false;
-    }
 
     public SingleTest(String name, String description, boolean interactive) {
         testName = name;
@@ -50,15 +40,19 @@ public class SingleTest {
 
     public String getTestName() { return testName; }
 
+    public void setBleTest(BLETest b) { bleTest = b; }
+
     public boolean didTestPass() { return testPassed; }
 
     public boolean didTestRun() { return testHasRun; }
 
-    public void runTest(Context context) {
-        Log.d(getClass().getName(), "Running test: "+testName);
+    public void runTest(BluetoothGatt gatt) { bleTest.runTest(gatt); }
+
+    public void compileTestResult(Context context) {
         if(!isInteractive) {
-            testPassed = (new Random()).nextBoolean();
-            testHasFinished(context);
+            testPassed = bleTest.getTestStatus();
+            //testPassed = (new Random()).nextBoolean();   // This is to fake out the BLE test
+            testHasFinished();
         } else {
             AlertDialog.Builder builder = new AlertDialog.Builder(context);
             builder.setMessage(testDescription).setPositiveButton("Yes", dialogClickListener)
@@ -66,13 +60,16 @@ public class SingleTest {
         }
     }
 
-    private void testHasFinished(Context context) {
+    private void testHasFinished() {
         testHasRun = true;
         if (testPassed) { DeviceTestHistory.incrementPassCount(testName); }
         else { DeviceTestHistory.incrementFailCount(testName); }
-        // Send broadcast to say test is finished
-        Intent intent = new Intent(BroadcastKeys.masterMessage);
-        intent.putExtra(BroadcastKeys.broadcastMessage, BroadcastKeys.testFinished);
-        LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
+        BroadcastKeys.sendGeneralBroadcast(BroadcastKeys.testFinished);
     }
+
+    public void setBleTestFailed() { bleTest.setTestFailed(); }
+
+    public void compileBleTestResult(String readVal) { bleTest.compileResult(readVal); }
+
+    public BLETest.TestType getBleTestType() { return bleTest.getTestType(); }
 }

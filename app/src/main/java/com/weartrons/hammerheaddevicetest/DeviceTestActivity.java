@@ -3,11 +3,14 @@ package com.weartrons.hammerheaddevicetest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothGatt;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.content.IntentFilter;
@@ -22,6 +25,7 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 
 public class DeviceTestActivity extends Activity {
@@ -30,17 +34,59 @@ public class DeviceTestActivity extends Activity {
     private ArrayAdapter<SingleTest> deviceTestAdapter;
     private int runningTestNum = 0;
     private BleScanner bleScanner = new BleScanner();
-    private BluetoothDevice selectedDevice = null;
+    private BluetoothDevice deviceUnderTest = null;
+    private BluetoothGatt connectedGatt = null;
+    private BleGattCallback mGattCallback = new BleGattCallback();
     private ProgressDialog busyIndicator;
 
     private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            String message = intent.getStringExtra(BroadcastKeys.broadcastMessage);
-            if (message.equals(BroadcastKeys.testFinished)) { redraw(); }
-            else if (message.equals(BroadcastKeys.scanFinished)) {
-                busyIndicator.dismiss();
-                listFoundDevices();
+            String gMessage = intent.getStringExtra(BroadcastKeys.generalMessage);
+            if (gMessage!=null) {
+                if (gMessage.equals(BroadcastKeys.testFinished)) {
+                    redraw();
+                    runningTestNum++;
+                    runNextTest();
+                }
+                else if (gMessage.equals(BroadcastKeys.bleTestFinished)) {
+                    deviceTestList.get(runningTestNum).compileTestResult(DeviceTestActivity.this);
+                }
+            }
+            String bleMessage = intent.getStringExtra(BroadcastKeys.bleMessage);
+            if (bleMessage != null) {
+                SingleTest runningTest = (runningTestNum < deviceTestList.size())? deviceTestList.get(runningTestNum):null;
+                if (bleMessage.equals(BroadcastKeys.scanFinished)) {
+                    busyIndicator.dismiss();
+                    listFoundDevices();
+                } else if (bleMessage.equals(BroadcastKeys.deviceConnected)) {
+                    TextView connectionState = (TextView)findViewById(R.id.deviceConnectedLabel);
+                    connectionState.setText("Device Connected");
+                    connectionState.setTextColor(Color.GREEN);
+                } else if (bleMessage.equals(BroadcastKeys.deviceDisconnected)) {
+                    TextView connectionState = (TextView)findViewById(R.id.deviceConnectedLabel);
+                    connectionState.setText("Device Disconnected");
+                    connectionState.setTextColor(Color.RED);
+                    TextView rssiLabel = (TextView)findViewById(R.id.rssiLabel);
+                    rssiLabel.setText("--");
+                    connectedGatt = null;
+                } else if (bleMessage.equals(BroadcastKeys.failedWrite) || bleMessage.equals(BroadcastKeys.failedRead)) {
+                    runningTest.setBleTestFailed();
+                } else if (bleMessage.equals(BroadcastKeys.characteristicWritten) &&
+                        runningTest.getBleTestType() == BLETest.TestType.WRITE_ONLY) {
+                    runningTest.compileBleTestResult(null);
+                } else if (bleMessage.equals(BroadcastKeys.characteristicRead) &&
+                        (runningTest.getBleTestType() == BLETest.TestType.READ_ONLY ||
+                        runningTest.getBleTestType() == BLETest.TestType.WRITE_THEN_READ)) {
+                    String chValue = intent.getStringExtra(BroadcastKeys.chValueMessage);
+                    runningTest.compileBleTestResult(chValue);
+                } else if (bleMessage.equals(BroadcastKeys.rssiRead)) {
+                    String rssiVal = intent.getStringExtra(BroadcastKeys.rssiValueMessage);
+                    TextView rssiLabel = (TextView)findViewById(R.id.rssiLabel);
+                    rssiLabel.setText(rssiVal);
+                } else if (bleMessage.equals(BroadcastKeys.servicesDiscovered)) {
+                    runNextTest();
+                }
             }
         }
     };
@@ -50,13 +96,14 @@ public class DeviceTestActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_device_test);
         DeviceTestHistory.setContext(getApplicationContext());
+        BroadcastKeys.setContext(getApplicationContext());
         busyIndicator = new ProgressDialog(this);
         createTestList();
-        ImageView titleLabel = (ImageView)findViewById(R.id.hammerheadLogo);
+        /*ImageView titleLabel = (ImageView)findViewById(R.id.hammerheadLogo);
         titleLabel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) { runNextTest(); }
-        });
+        });*/
         deviceTestListView = (ListView)findViewById(R.id.deviceTestList);
         deviceTestAdapter = new DeviceTestAdapter(this, R.layout.device_test_adapter, deviceTestList);
         deviceTestListView.setAdapter(deviceTestAdapter);
@@ -72,16 +119,12 @@ public class DeviceTestActivity extends Activity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.device_test, menu);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
         if (id == R.id.action_settings) {
             return true;
@@ -90,26 +133,66 @@ public class DeviceTestActivity extends Activity {
     }
 
     private void createTestList() {
-        deviceTestList.add(new SingleTest("Accelerometer", "Is accelerometer working?", false));
+        SingleTest batteryTest = new SingleTest("Battery", "Is battery in range?", false);
+        batteryTest.setBleTest(new BLETest(UUID.fromString("0000180f-0000-1000-8000-00805f9b34fb"),
+                UUID.fromString("00002a19-0000-1000-8000-00805f9b34fb"),
+                BLETest.TestType.READ_ONLY) {
+            @Override
+            protected boolean didTestPass(String chValue) {
+                byte[] b = chValue.getBytes();
+                int val = b[0] & 0xff;
+                if (val > 0 && val <= 100) { return true; }
+                return false;
+            }
+        });
+
+        SingleTest buzzTest = new SingleTest("Beep Device", "Did device beep?", true);
+        BLETest buzzBle = new BLETest(UUID.fromString("00001803-0000-1000-8000-00805f9b34fb"),
+                UUID.fromString("00002a06-0000-1000-8000-00805f9b34fb"),
+                BLETest.TestType.WRITE_ONLY) {
+            @Override
+            protected boolean didTestPass(String chValue) {
+                return true;
+            }
+        };
+        buzzBle.setWriteValue(new byte[] {(byte) 1});
+        buzzTest.setBleTest(buzzBle);
+
+        deviceTestList.add(batteryTest);
+        deviceTestList.add(buzzTest);
+        /*deviceTestList.add(new SingleTest("Accelerometer", "Is accelerometer working?", false));
         deviceTestList.add(new SingleTest("Pressure", "Is pressure sensor working?", false));
         deviceTestList.add(new SingleTest("Fuel Gauge", "Is fuel gauge working?", false));
         deviceTestList.add(new SingleTest("Light Sensor", "Is light sensor working?", false));
         deviceTestList.add(new SingleTest("Headlights", "Are headlights working?", true));
         deviceTestList.add(new SingleTest("Red", "Are red LEDs working?", true));
         deviceTestList.add(new SingleTest("Green", "Are green LEDs working?", true));
-        deviceTestList.add(new SingleTest("Blue", "Are blue LEDs working?", true));
+        deviceTestList.add(new SingleTest("Blue", "Are blue LEDs working?", true));*/
     }
 
     private void runNextTest() {
-        if(runningTestNum+1 > deviceTestList.size()) { return; }
-        SingleTest deviceTest = deviceTestList.get(runningTestNum);
-        deviceTest.runTest(this);
-        runningTestNum++;
+        if (connectedGatt == null) { return; } // No test if device not connected
+        if(runningTestNum+1 > deviceTestList.size()) { // Tests are completed
+            finishDeviceTesting();
+            return;
+        }
+        // More tests to run otherwise
+        deviceTestList.get(runningTestNum).runTest(connectedGatt);
+    }
+
+    private void finishDeviceTesting() {
+        if(deviceUnderTest != null) {
+            DeviceTestHistory.addTestedDevice(deviceUnderTest.getAddress());
+            connectedGatt.disconnect();
+            deviceTestList.clear();
+            createTestList();
+            redraw();
+        }
     }
 
     public void redraw() {
         TextView numberOfTests = (TextView)findViewById(R.id.testsRunLabel);
-        numberOfTests.setText(Integer.toString(runningTestNum));
+        numberOfTests.setText(Integer.toString(DeviceTestHistory.getNumberOfDevicesTested()));
         TextView totalPassedView = (TextView)findViewById(R.id.totalPassedCount);
         int totalPassed = DeviceTestListHelpers.totalTestsPassed(deviceTestList);
         int totalFailed = DeviceTestListHelpers.totalTestsFailed(deviceTestList);
@@ -121,10 +204,8 @@ public class DeviceTestActivity extends Activity {
             int yield = (int)((float)totalPassed/(float)(totalPassed+totalFailed)*100);
             yieldView.setText(Integer.toString(yield)+"%");
         }
-        if (selectedDevice != null) {
-            TextView deviceAddress = (TextView)findViewById(R.id.deviceIDLabel);
-            deviceAddress.setText(selectedDevice.getAddress());
-        }
+        TextView deviceAddress = (TextView)findViewById(R.id.deviceIDLabel);
+        deviceAddress.setText((deviceUnderTest==null)?"00:00:00:00:00:00":deviceUnderTest.getAddress());
         deviceTestAdapter.notifyDataSetChanged();
     }
 
@@ -132,7 +213,7 @@ public class DeviceTestActivity extends Activity {
         busyIndicator.setTitle("Scanning for BLE Devices");
         busyIndicator.setMessage("Please wait while scanning...");
         busyIndicator.show();
-        bleScanner.scan(this, 5);
+        bleScanner.scan(5);
     }
 
     private void listFoundDevices() {
@@ -152,7 +233,9 @@ public class DeviceTestActivity extends Activity {
         builderSingle.setAdapter(arrayAdapter, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                selectedDevice = bleScanner.getDeviceList().get(which);
+                deviceUnderTest = bleScanner.getDeviceList().get(which);
+                connectedGatt = deviceUnderTest.connectGatt(DeviceTestActivity.this, false, mGattCallback);
+                runningTestNum = 0;
                 redraw();
                 dialog.dismiss();  // For now, just dismiss list on click
             }

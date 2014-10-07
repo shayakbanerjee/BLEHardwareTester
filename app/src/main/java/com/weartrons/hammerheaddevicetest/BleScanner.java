@@ -2,11 +2,7 @@ package com.weartrons.hammerheaddevicetest;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
-import android.content.Context;
-import android.content.Intent;
 import android.os.Handler;
-import android.support.v4.content.LocalBroadcastManager;
-import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,7 +27,7 @@ public class BleScanner {
 
     public List<BluetoothDevice> getDeviceList() { return deviceList; }
 
-    public void scan(final Context context, int seconds) {
+    public void scan(int seconds) {
         deviceList.clear();
         Handler mHandler = new Handler();
         mHandler.post(new Runnable() {
@@ -42,10 +38,7 @@ public class BleScanner {
             @Override
             public void run() {
                 bAdapter.stopLeScan(mScanCallback);
-                // Send broadcast to say test is finished
-                Intent intent = new Intent(BroadcastKeys.masterMessage);
-                intent.putExtra(BroadcastKeys.broadcastMessage, BroadcastKeys.scanFinished);
-                LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
+                BroadcastKeys.sendBLEBroadcast(BroadcastKeys.scanFinished);
             }
         }, seconds * 1000);
     }
