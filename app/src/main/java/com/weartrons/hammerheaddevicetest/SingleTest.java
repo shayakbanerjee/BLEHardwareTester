@@ -23,9 +23,11 @@ public class SingleTest {
         public void onClick(DialogInterface dialog, int which) {
             if (which == DialogInterface.BUTTON_POSITIVE) {
                 testPassed = true;
+                DeviceTestLog.writeEntry("Test "+testName+" status: "+Boolean.toString(testPassed));
                 testHasFinished();
             } else if (which == DialogInterface.BUTTON_NEGATIVE) {
                 testPassed = false;
+                DeviceTestLog.writeEntry("Test "+testName+" status: "+Boolean.toString(testPassed));
                 testHasFinished();
             }
         }
@@ -46,14 +48,19 @@ public class SingleTest {
 
     public boolean didTestRun() { return testHasRun; }
 
-    public void runTest(BluetoothGatt gatt) { bleTest.runTest(gatt); }
+    public void runTest(BluetoothGatt gatt) {
+        DeviceTestLog.writeEntry("Running test: "+testName);
+        bleTest.runTest(gatt);
+    }
 
     public void compileTestResult(Context context) {
         if(!isInteractive) {
             testPassed = bleTest.getTestStatus();
+            DeviceTestLog.writeEntry("Test "+testName+" status: "+Boolean.toString(testPassed));
             //testPassed = (new Random()).nextBoolean();   // This is to fake out the BLE test
             testHasFinished();
         } else {
+            DeviceTestLog.writeEntry("Asking for user input: "+testDescription);
             AlertDialog.Builder builder = new AlertDialog.Builder(context);
             builder.setMessage(testDescription).setPositiveButton("Yes", dialogClickListener)
                     .setNegativeButton("No", dialogClickListener).show();
@@ -65,6 +72,7 @@ public class SingleTest {
         if (testPassed) { DeviceTestHistory.incrementPassCount(testName); }
         else { DeviceTestHistory.incrementFailCount(testName); }
         BroadcastKeys.sendGeneralBroadcast(BroadcastKeys.testFinished);
+        DeviceTestLog.writeEntry("Completing test: "+testName);
     }
 
     public void setBleTestFailed() { bleTest.setTestFailed(); }

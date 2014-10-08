@@ -14,6 +14,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.content.IntentFilter;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -61,6 +62,7 @@ public class DeviceTestActivity extends Activity {
                     listFoundDevices();
                 } else if (bleMessage.equals(BroadcastKeys.deviceConnected)) {
                     TextView connectionState = (TextView)findViewById(R.id.deviceConnectedLabel);
+                    DeviceTestLog.writeEntry("Device Connected");
                     connectionState.setText("Device Connected");
                     connectionState.setTextColor(Color.GREEN);
                 } else if (bleMessage.equals(BroadcastKeys.deviceDisconnected)) {
@@ -72,6 +74,7 @@ public class DeviceTestActivity extends Activity {
                     connectedGatt = null;
                 } else if (bleMessage.equals(BroadcastKeys.failedWrite) || bleMessage.equals(BroadcastKeys.failedRead)) {
                     runningTest.setBleTestFailed();
+                    DeviceTestLog.writeEntry("Write or read failed");
                 } else if (bleMessage.equals(BroadcastKeys.characteristicWritten) &&
                         runningTest.getBleTestType() == BLETest.TestType.WRITE_ONLY) {
                     runningTest.compileBleTestResult(null);
@@ -80,12 +83,15 @@ public class DeviceTestActivity extends Activity {
                         runningTest.getBleTestType() == BLETest.TestType.WRITE_THEN_READ)) {
                     String chValue = intent.getStringExtra(BroadcastKeys.chValueMessage);
                     runningTest.compileBleTestResult(chValue);
+                    DeviceTestLog.writeEntry("Reading value from characteristic");
                 } else if (bleMessage.equals(BroadcastKeys.rssiRead)) {
                     String rssiVal = intent.getStringExtra(BroadcastKeys.rssiValueMessage);
                     TextView rssiLabel = (TextView)findViewById(R.id.rssiLabel);
                     rssiLabel.setText(rssiVal);
+                    DeviceTestLog.writeEntry("Read RSSI: " + rssiVal);
                 } else if (bleMessage.equals(BroadcastKeys.servicesDiscovered)) {
                     runNextTest();
+                    DeviceTestLog.writeEntry("Discovered device services");
                 }
             }
         }
@@ -161,21 +167,8 @@ public class DeviceTestActivity extends Activity {
         buzzBle.setWriteValue(new byte[] {(byte) 1});
         buzzTest.setBleTest(buzzBle);
 
-        SingleTest longBuzzTest = new SingleTest("Long Beep", "Did device long beep?", true);
-        BLETest longBuzzBle = new BLETest(UUID.fromString("00001803-0000-1000-8000-00805f9b34fb"),
-                UUID.fromString("00002a06-0000-1000-8000-00805f9b34fb"),
-                BLETest.TestType.WRITE_ONLY) {
-            @Override
-            protected boolean didTestPass(String chValue) {
-                return true;
-            }
-        };
-        longBuzzBle.setWriteValue(new byte[] {(byte) 2});
-        longBuzzTest.setBleTest(longBuzzBle);
-
         deviceTestList.add(batteryTest);
         deviceTestList.add(buzzTest);
-        deviceTestList.add(longBuzzTest);
 
         /*deviceTestList.add(new SingleTest("Accelerometer", "Is accelerometer working?", false));
         deviceTestList.add(new SingleTest("Pressure", "Is pressure sensor working?", false));
@@ -201,6 +194,10 @@ public class DeviceTestActivity extends Activity {
         if(deviceUnderTest != null) {
             DeviceTestHistory.addTestedDevice(deviceUnderTest.getAddress());
             connectedGatt.disconnect();
+            DeviceTestLog.writeEntry("Device disconnected");
+            DeviceTestLog.closeFile(); // Also need to upload to Dropbox here
+            /* Test print the file to see if log was written */
+            Log.d(getClass().getName(), "File Contents: "+DeviceTestLog.getLogContents(getApplicationContext()));
         }
     }
 
@@ -257,6 +254,7 @@ public class DeviceTestActivity extends Activity {
                 connectedGatt = deviceUnderTest.connectGatt(DeviceTestActivity.this, false, mGattCallback);
                 runningTestNum = 0;
                 redraw();
+                DeviceTestLog.openFile(getApplicationContext());
                 dialog.dismiss();  // For now, just dismiss list on click
             }
         });
