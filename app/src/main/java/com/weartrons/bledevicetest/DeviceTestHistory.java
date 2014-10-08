@@ -1,4 +1,4 @@
-package com.weartrons.hammerheaddevicetest;
+package com.weartrons.bledevicetest;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -19,7 +19,7 @@ public class DeviceTestHistory {
     private DeviceTestHistory() { }
 
     public static void setContext(Context context) {
-        sharedPrefs = context.getSharedPreferences("com.weartrons.hammerheaddevicetest", Context.MODE_PRIVATE);
+        sharedPrefs = context.getSharedPreferences("com.weartrons.bledevicetest", Context.MODE_PRIVATE);
     }
 
     private static void incrementCount(String key) {

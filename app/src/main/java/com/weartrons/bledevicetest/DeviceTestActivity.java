@@ -1,9 +1,8 @@
-package com.weartrons.hammerheaddevicetest;
+package com.weartrons.bledevicetest;
 
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
 import android.content.BroadcastReceiver;
@@ -20,16 +19,12 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
-
-import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
+import java.util.ArrayList;
 
-
-public class DeviceTestActivity extends Activity {
+public abstract class DeviceTestActivity extends Activity {
     private List<SingleTest> deviceTestList = new ArrayList<SingleTest>();
     private ListView deviceTestListView;
     private ArrayAdapter<SingleTest> deviceTestAdapter;
@@ -104,12 +99,8 @@ public class DeviceTestActivity extends Activity {
         DeviceTestHistory.setContext(getApplicationContext());
         BroadcastKeys.setContext(getApplicationContext());
         busyIndicator = new ProgressDialog(this);
-        createTestList();
-        /*ImageView titleLabel = (ImageView)findViewById(R.id.hammerheadLogo);
-        titleLabel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) { runNextTest(); }
-        });*/
+        deviceTestList = createTestList();
+        ((TextView)findViewById(R.id.logoText)).setText(setTitle());
         deviceTestListView = (ListView)findViewById(R.id.deviceTestList);
         deviceTestAdapter = new DeviceTestAdapter(this, R.layout.device_test_adapter, deviceTestList);
         deviceTestListView.setAdapter(deviceTestAdapter);
@@ -141,44 +132,9 @@ public class DeviceTestActivity extends Activity {
         return super.onOptionsItemSelected(item);
     }
 
-    private void createTestList() {
-        SingleTest batteryTest = new SingleTest("Battery", "Is battery in range?", false);
-        batteryTest.setBleTest(new BLETest(UUID.fromString("0000180f-0000-1000-8000-00805f9b34fb"),
-                UUID.fromString("00002a19-0000-1000-8000-00805f9b34fb"),
-                BLETest.TestType.READ_ONLY) {
-            @Override
-            protected boolean didTestPass(String chValue) {
-                byte[] b = chValue.getBytes();
-                int val = b[0] & 0xff;
-                if (val > 0 && val <= 100) { return true; }
-                return false;
-            }
-        });
+    protected abstract List<SingleTest> createTestList();
 
-        SingleTest buzzTest = new SingleTest("Beep Device", "Did device beep?", true);
-        BLETest buzzBle = new BLETest(UUID.fromString("00001803-0000-1000-8000-00805f9b34fb"),
-                UUID.fromString("00002a06-0000-1000-8000-00805f9b34fb"),
-                BLETest.TestType.WRITE_ONLY) {
-            @Override
-            protected boolean didTestPass(String chValue) {
-                return true;
-            }
-        };
-        buzzBle.setWriteValue(new byte[] {(byte) 1});
-        buzzTest.setBleTest(buzzBle);
-
-        deviceTestList.add(batteryTest);
-        deviceTestList.add(buzzTest);
-
-        /*deviceTestList.add(new SingleTest("Accelerometer", "Is accelerometer working?", false));
-        deviceTestList.add(new SingleTest("Pressure", "Is pressure sensor working?", false));
-        deviceTestList.add(new SingleTest("Fuel Gauge", "Is fuel gauge working?", false));
-        deviceTestList.add(new SingleTest("Light Sensor", "Is light sensor working?", false));
-        deviceTestList.add(new SingleTest("Headlights", "Are headlights working?", true));
-        deviceTestList.add(new SingleTest("Red", "Are red LEDs working?", true));
-        deviceTestList.add(new SingleTest("Green", "Are green LEDs working?", true));
-        deviceTestList.add(new SingleTest("Blue", "Are blue LEDs working?", true));*/
-    }
+    protected abstract String setTitle();
 
     private void runNextTest() {
         if (connectedGatt == null) { return; } // No test if device not connected
@@ -195,15 +151,13 @@ public class DeviceTestActivity extends Activity {
             DeviceTestHistory.addTestedDevice(deviceUnderTest.getAddress());
             connectedGatt.disconnect();
             DeviceTestLog.writeEntry("Device disconnected");
-            DeviceTestLog.closeFile(); // Also need to upload to Dropbox here
-            /* Test print the file to see if log was written */
             Log.d(getClass().getName(), "File Contents: "+DeviceTestLog.getLogContents(getApplicationContext()));
         }
     }
 
     private void clearTestList() {
         deviceTestList.clear();
-        createTestList();
+        deviceTestList = createTestList();
         redraw();
     }
 
@@ -265,6 +219,7 @@ public class DeviceTestActivity extends Activity {
     protected void onDestroy() {
         // Unregister since the activity is about to be closed.
         LocalBroadcastManager.getInstance(this).unregisterReceiver(broadcastReceiver);
+        DeviceTestLog.closeFile();
         super.onDestroy();
     }
 }
