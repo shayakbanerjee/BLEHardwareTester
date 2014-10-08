@@ -1,4 +1,4 @@
-package com.weartrons.hammerheaddevicetest;
+package com.weartrons.bledevicetest;
 
 import android.content.Context;
 
@@ -61,4 +61,7 @@ public class DeviceTestLog {
         return "";
     }
 
+    public static void uploadToDropBox() {
+
+    }
 }
