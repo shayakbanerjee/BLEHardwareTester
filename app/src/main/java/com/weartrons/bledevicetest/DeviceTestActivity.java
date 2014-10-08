@@ -157,7 +157,7 @@ public abstract class DeviceTestActivity extends Activity {
 
     private void clearTestList() {
         deviceTestList.clear();
-        deviceTestList = createTestList();
+        for (SingleTest s: createTestList()) { deviceTestList.add(s); }
         redraw();
     }
 
@@ -184,7 +184,7 @@ public abstract class DeviceTestActivity extends Activity {
         busyIndicator.setTitle("Scanning for BLE Devices");
         busyIndicator.setMessage("Please wait while scanning...");
         busyIndicator.show();
-        bleScanner.scan(5);
+        bleScanner.scan(1);
     }
 
     private void listFoundDevices() {
