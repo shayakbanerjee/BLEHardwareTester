@@ -1,4 +1,4 @@
-package com.weartrons.hammerheaddevicetest;
+package com.weartrons.bledevicetest;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
