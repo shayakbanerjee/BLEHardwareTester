@@ -1,4 +1,7 @@
 This is a library for quickly pulling together a set of BLE device tests for end-of-line testing.
+
 BLE Tests are generically specified with a test name, description and a set of BLE commands to send (reads or writes).
+
 The library displays a view which lists pass/fail of tests for a single device. It also maintains a count of failures across tests.
+
 The API currently involves extending the DeviceTestActivity class to define your own tests and set your app title. An example app has been put together here.
