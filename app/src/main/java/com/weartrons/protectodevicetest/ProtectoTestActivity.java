@@ -1,8 +1,9 @@
-package com.weartrons.bledevicetest;
+package com.weartrons.protectodevicetest;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import com.weartrons.bledevicetest.*;
 
 /**
  * Created by shayak on 10/8/14.
