@@ -1,4 +1,4 @@
-This is a library for quickly pulling together a set of BLE device tests for end-of-line testing.
+This is a library for quickly creating a set of BLE device tests for end-of-line testing in the form of an example app.
 
 BLE Tests are generically specified with a test name, description and a set of BLE commands to send (reads or writes).
 
