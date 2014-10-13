@@ -68,16 +68,23 @@ public class SingleTest {
     }
 
     private void testHasFinished() {
-        testHasRun = true;
         if (testPassed) { DeviceTestHistory.incrementPassCount(testName); }
         else { DeviceTestHistory.incrementFailCount(testName); }
         BroadcastKeys.sendGeneralBroadcast(BroadcastKeys.testFinished);
         DeviceTestLog.writeEntry("Completing test: "+testName);
     }
 
-    public void setBleTestFailed() { bleTest.setTestFailed(); }
+    public void setBleTestFailed() {
+        if (testHasRun) { return; }
+        testHasRun = true;
+        bleTest.setTestFailed();
+    }
 
-    public void compileBleTestResult(String readVal) { bleTest.compileResult(readVal); }
+    public void compileBleTestResult(String readVal) {
+        if (testHasRun) { return; }
+        testHasRun = true;
+        bleTest.compileResult(readVal);
+    }
 
     public BLETest.TestType getBleTestType() { return bleTest.getTestType(); }
 }

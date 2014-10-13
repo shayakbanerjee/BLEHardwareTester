@@ -75,6 +75,10 @@ public class BleGattCallback extends BluetoothGattCallback {
 
     @Override
     public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
+        Log.d(getClass().getName(), "Characteristic changed");
+        BroadcastKeys.sendBLEBroadcastValue(BroadcastKeys.characteristicChanged, characteristic.getStringValue(0));
+        gatt.readRemoteRssi();
+        gatt.setCharacteristicNotification(characteristic, false);
     }
 
 }

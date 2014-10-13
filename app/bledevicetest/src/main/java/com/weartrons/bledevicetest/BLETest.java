@@ -2,6 +2,7 @@ package com.weartrons.bledevicetest;
 
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
+import android.bluetooth.BluetoothGattDescriptor;
 import android.util.Log;
 
 import java.util.UUID;
@@ -10,6 +11,7 @@ import java.util.UUID;
  * Created by shayak on 10/6/14.
  */
 public abstract class BLETest {
+    private static final UUID CHARACTERISTIC_UPDATE_NOTIFICATION_DESCRIPTOR_UUID = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb");
     private UUID readService = null;
     private UUID readCharacteristic = null;
     private UUID writeService = null;
@@ -71,6 +73,9 @@ public abstract class BLETest {
             if (testType == TestType.WRITE_THEN_READ) {
                 BluetoothGattCharacteristic rch = gatt.getService(readService).getCharacteristic(readCharacteristic);
                 gatt.setCharacteristicNotification(rch, true);
+                BluetoothGattDescriptor descriptor = rch.getDescriptor(CHARACTERISTIC_UPDATE_NOTIFICATION_DESCRIPTOR_UUID);
+                descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
+                gatt.writeDescriptor(descriptor);
             }
             boolean status = gatt.writeCharacteristic(ch);
         }

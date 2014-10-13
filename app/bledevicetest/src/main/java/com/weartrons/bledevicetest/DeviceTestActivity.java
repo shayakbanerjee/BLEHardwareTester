@@ -74,11 +74,15 @@ public abstract class DeviceTestActivity extends Activity {
                         runningTest.getBleTestType() == BLETest.TestType.WRITE_ONLY) {
                     runningTest.compileBleTestResult(null);
                 } else if (bleMessage.equals(BroadcastKeys.characteristicRead) &&
-                        (runningTest.getBleTestType() == BLETest.TestType.READ_ONLY ||
-                        runningTest.getBleTestType() == BLETest.TestType.WRITE_THEN_READ)) {
+                        (runningTest.getBleTestType() == BLETest.TestType.READ_ONLY)) {
                     String chValue = intent.getStringExtra(BroadcastKeys.chValueMessage);
                     runningTest.compileBleTestResult(chValue);
                     DeviceTestLog.writeEntry("Reading value from characteristic");
+                } else if (bleMessage.equals(BroadcastKeys.characteristicChanged) &&
+                        (runningTest.getBleTestType() == BLETest.TestType.WRITE_THEN_READ)) {
+                    String chValue = intent.getStringExtra(BroadcastKeys.chValueMessage);
+                    runningTest.compileBleTestResult(chValue);
+                    DeviceTestLog.writeEntry("Reading value from notification");
                 } else if (bleMessage.equals(BroadcastKeys.rssiRead)) {
                     String rssiVal = intent.getStringExtra(BroadcastKeys.rssiValueMessage);
                     TextView rssiLabel = (TextView)findViewById(R.id.rssiLabel);
@@ -184,7 +188,7 @@ public abstract class DeviceTestActivity extends Activity {
         busyIndicator.setTitle("Scanning for BLE Devices");
         busyIndicator.setMessage("Please wait while scanning...");
         busyIndicator.show();
-        bleScanner.scan(1);
+        bleScanner.scan(3);
     }
 
     private void listFoundDevices() {

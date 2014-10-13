@@ -22,6 +22,7 @@ public class BroadcastKeys {
     public static String rssiRead = "rssi-read";
     public static String characteristicRead = "characteristic-read";
     public static String characteristicWritten = "characteristic-written";
+    public static String characteristicChanged = "characteristic-changed";
     public static String failedRead = "characteristic-read-failed";
     public static String failedWrite = "characeristic-write-failed";
 
