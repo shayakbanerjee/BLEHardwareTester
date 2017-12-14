@@ -32,6 +32,6 @@ batteryTest.setBleTest(bTest);
 The library displays a view which lists pass/fail of tests for a single device. It also maintains a count of failures across tests.
 
 ## The Example App - Protecto
-An example app has been put together here (see `ProtectoTestActivity). It extends the `DeviceTestActivity` class (defined in the library) to define 2 sample tests:
+An example app has been put together here (see `ProtectoTestActivity`). It extends the `DeviceTestActivity` class (defined in the library) to define 2 sample tests:
 1. Did a buzzer on the device beep when the command was sent?
 1. Was the battery level obtainable from the BLE device, and was the value between 0 - 100?
